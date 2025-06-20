@@ -1,0 +1,85 @@
+meta {
+  name: Get  Shop 200
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{gateway_dev}}/Delivery/v1/GetShop
+  body: json
+  auth: bearer
+}
+
+headers {
+  Accept-Language: ru-RU,ru;q=0.9
+  Connection: keep-alive
+  Origin: https://ecp-dev.henderson.ru
+  Referer: https://ecp-dev.henderson.ru/
+  Sec-Fetch-Dest: empty
+  Sec-Fetch-Mode: cors
+  Sec-Fetch-Site: same-site
+  User-Agent: Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36
+  accept: application/json
+  authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyVG9rZW4iOiIyNDg0OTg4ZC0zOGQ5LTRmNDMtOTViYy0zYmRiODc0NjAwZmEiLCJDb3VudHJ5IjoiUlUiLCJleHAiOjE3NTAxNTEwNTMsImlzcyI6ImhlbmRlcnNvbi5ydSIsImF1ZCI6ImhlbmRlcnNvbi5ydSJ9.9XrmbK6q66WElcdLTkr5-SSJePZQeX_5jmnlraIDHaA
+  content-type: application/json
+  sec-ch-ua: "Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"
+  sec-ch-ua-mobile: ?1
+  sec-ch-ua-platform: "Android"
+  x-dest: delivery
+  Cookie: mindboxDeviceUUID=866020c5-ce1d-44a6-87a9-8c9807a7c70b; directCrm-session=%7B%22deviceGuid%22%3A%22866020c5-ce1d-44a6-87a9-8c9807a7c70b%22%7D; _ym_uid=175015016178820407; _ym_d=1750150161; _ym_isad=2; _ym_visorc=w; _gcl_au=1.1.1144651608.1750150161; tmr_lvid=5557b3e5b72dd4b891ed905c19724603; tmr_lvidTS=1750150161688; _ga=GA1.1.798429429.1750150162; _ga_KXLLKH0F95=GS2.1.s1750150161$o1$g1$t1750150479$j59$l0$h0
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+      "country": "RU",
+      "regionCode": "{{regionId}}",
+      "cityId": "{{cityGuid}}"
+  }
+}
+
+script:post-response {
+  // 1. Check if hasError is false
+  test("Validate 'hasError' is false", function () {
+      expect(res.getBody().hasError).to.be.false;
+  });
+  
+  // 2. Validate presence of all required payment codes
+  test("All required payment types are present", function () {
+      const expectedPaymentCodes = ["GIFT", "SBP", "SB_NEW", "Bank", "Cash"];
+      const actualPaymentCodes = res.getBody().paymentTypes.map(p => p.code);
+      
+      expectedPaymentCodes.forEach(code => {
+          expect(actualPaymentCodes, `Missing payment code: ${code}`).to.include(code);
+      });
+  });
+  
+  // 3. Find and save deliveryMethodId where isReserve === false and deliveryDate is not today
+  test("Find random valid shop and save data", function () {
+      const today = new Date().toISOString().split('T')[0];
+      const shops = res.getBody().shops;
+  
+      // Filter valid shops
+      const validShops = shops.filter(shop => !shop.isReserve && shop.deliveryDate !== today);
+  
+      if (validShops.length > 0) {
+          // Pick a random shop
+          const randomIndex = Math.floor(Math.random() * validShops.length);
+          const randomShop = validShops[randomIndex];
+  
+          // Save values to environment
+          bru.setVar("shopNumber", randomShop.deliveryMethodId);
+          bru.setVar("deliveryDate", randomShop.deliveryDate);
+          bru.setVar("deliveryType", randomShop.deliveryType);
+  
+          console.log(`Randomly selected deliveryMethodId: ${randomShop.deliveryMethodId}`);
+          console.log(`Delivery Date: ${randomShop.deliveryDate}`);
+          console.log(`Delivery Type: ${randomShop.deliveryType}`);
+      } else {
+  //         pm.fail("No valid shops found with isReserve: false and deliveryDate ≠ today");
+      }
+  });
+}

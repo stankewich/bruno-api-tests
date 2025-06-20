@@ -1,0 +1,90 @@
+meta {
+  name: Order Create 200
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{gateway_dev}}/Order/Create
+  body: json
+  auth: bearer
+}
+
+headers {
+  Accept-Language: ru-RU,ru;q=0.9
+  Connection: keep-alive
+  Origin: https://ecp-dev.henderson.ru
+  Referer: https://ecp-dev.henderson.ru/
+  Sec-Fetch-Dest: empty
+  Sec-Fetch-Mode: cors
+  Sec-Fetch-Site: same-site
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36
+  accept: application/json
+  authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyVG9rZW4iOiI1OThkMGRjZC03YWFkLTQ3ZGEtOTBmMC01NjNhOWYyMTkzNDgiLCJDb3VudHJ5IjoiUlUiLCJVc2VySWQiOiI1ODUzOTYwIiwiRGV2aWNlVVVJRCI6Ijk3MzkzNzA4LWFhNDUtNDZmZC04MzliLWM3OWMwYWNhZTk0YSIsImV4cCI6MTc0OTIxMTQ5NSwiaXNzIjoiaGVuZGVyc29uLnJ1IiwiYXVkIjoiaGVuZGVyc29uLnJ1In0.5PtOtbZiOAa-plD71rheLtP6CKC_gRw4_ZyLRTo92LQ
+  content-type: application/json
+  sec-ch-ua: "Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"
+  sec-ch-ua-mobile: ?0
+  sec-ch-ua-platform: "Windows"
+  x-dest: ordering
+  Cookie: _ym_uid=1749137122831597593; _ym_d=1749137122; _gcl_au=1.1.471954575.1749137122; tmr_lvid=52fc598a751ece52d1e8e4e6b6451dc3; tmr_lvidTS=1749137122417; _ga=GA1.1.131927125.1749137123; popmechanic_sbjs_migrations=popmechanic_1418474375998%3D1%7C%7C%7C1471519752600%3D1%7C%7C%7C1471519752605%3D1; mindboxDeviceUUID=97393708-aa45-46fd-839b-c79c0acae94a; directCrm-session=%7B%22deviceGuid%22%3A%2297393708-aa45-46fd-839b-c79c0acae94a%22%7D; _ga_KXLLKH0F95=GS2.1.s1749210596$o3$g1$t1749210622$j34$l0$h0
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+      "city": "{{cityName}}",
+      "cityCode": "{{cityGuid}}",
+      "regionId": "{{regionId}}",
+      "delivery": {
+          "countryId": "RU",
+          "deliveryType": "{{deliveryType}}",
+          "deliveryMethodId": "{{shopNumber}}",
+          "date": "{{deliveryDate}}",
+          "interval": "",
+          "isReserve": false
+      },
+      "address": {
+          "postalCode": "",
+          "street": "",
+          "korpus": "",
+          "building": "",
+          "stroenie": "",
+          "apartment": "",
+          "streetAOGUID": "",
+          "regionCode": "",
+          "RegionName": ""
+      },
+      "payment": {
+          "isPrePay": false,
+          "isPostPay": true,
+          "paymentType": 2,
+          "pickupFio": ""
+      },
+      "firstName": "{{customerName}}",
+      "lastName": "{{customerSurname}}",
+      "phone": "{{customerPhone}}",
+      "email": "{{customerMail}}",
+      "note": "ТЕСТОВЫЙ ЗАКАЗ, созданный через API. Не собирать. Будет отменён! С уважением, команда тестирования Henderson.",
+      "hasQuestions": false,
+      "giftCard": [],
+      "coupon": "",
+      "consentMailings": false,
+      "source": 1
+  }
+}
+
+script:post-response {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Validate orderNumber and log its data", function () {
+      const jsonData = res.getBody();
+      expect(jsonData.orderNumber).to.be.a('string');
+      console.log(`Order created with number: ${jsonData.orderNumber}`);
+  });
+  
+}
