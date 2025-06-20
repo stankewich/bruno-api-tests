@@ -1,0 +1,33 @@
+meta {
+  name: CheckCustomerByEmail 200
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://api-crm-service-dev.henderson.ru/Customer/CheckCustomerByEmail
+  body: json
+  auth: inherit
+}
+
+headers {
+  accept: text/plain
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "customer": {
+      "email": "{{customerMail}}"
+    }
+  }
+}
+
+script:post-response {
+  bru.setVar("mindboxId-test", res.body.customer.ids.mindboxId);
+  console.log("✅ Token успешно сохранён:", res.body.customer.ids.mindboxId);
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+    console.log("✅ Тест 'Status code is 200' пройден");
+  });
+}

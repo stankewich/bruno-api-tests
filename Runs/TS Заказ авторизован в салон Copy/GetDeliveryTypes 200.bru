@@ -1,0 +1,49 @@
+meta {
+  name: GetDeliveryTypes 200
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{gateway_dev}}/Delivery/v1/GetDeliveryTypes
+  body: json
+  auth: bearer
+}
+
+headers {
+  Accept-Language: ru-RU,ru;q=0.9
+  Connection: keep-alive
+  Origin: https://ecp-dev.henderson.ru
+  Referer: https://ecp-dev.henderson.ru/
+  Sec-Fetch-Dest: empty
+  Sec-Fetch-Mode: cors
+  Sec-Fetch-Site: same-site
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36
+  accept: application/json
+  authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyVG9rZW4iOiJiZWFmODFjYS1lODYyLTQ2NDQtOTg1Yy1lN2IyODUwNjYxNWEiLCJDb3VudHJ5IjoiUlUiLCJVc2VySWQiOiI1ODUzOTYwIiwiRGV2aWNlVVVJRCI6IjdmZmRjZDJmLWI0YzQtNDYyMi05ZTYwLTFkZTg2ODExMjMzMSIsImV4cCI6MTc1MDMzOTQyMCwiaXNzIjoiaGVuZGVyc29uLnJ1IiwiYXVkIjoiaGVuZGVyc29uLnJ1In0._CbJqZg0YhIWbkWR45DvTnsz-HCl4AVIEZDXuY9jNdc
+  content-type: application/json
+  sec-ch-ua: "Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"
+  sec-ch-ua-mobile: ?0
+  sec-ch-ua-platform: "Windows"
+  x-dest: delivery
+  Cookie: _ym_uid=1750333836612385684; _ym_d=1750333836; _ym_isad=2; popmechanic_sbjs_migrations=popmechanic_1418474375998%3D1%7C%7C%7C1471519752600%3D1%7C%7C%7C1471519752605%3D1; _gcl_au=1.1.1704615218.1750333837; tmr_lvid=9e42ef8e7e4a6546a55f4d492f6fc23d; tmr_lvidTS=1750333837218; _ga=GA1.1.902790693.1750333838; mindboxDeviceUUID=7ffdcd2f-b4c4-4622-9e60-1de868112331; directCrm-session=%7B%22deviceGuid%22%3A%227ffdcd2f-b4c4-4622-9e60-1de868112331%22%7D; _ga_KXLLKH0F95=GS2.1.s1750338219$o2$g0$t1750338223$j56$l0$h0
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+      "country": "RU",
+      "regionCode": "{{regionId}}",
+      "cityId": "{{cityGuid}}",
+      "force": false
+  }
+}
+
+script:post-response {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+}

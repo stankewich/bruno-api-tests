@@ -1,0 +1,41 @@
+meta {
+  name: GetShopByNumber 200
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{gateway_dev}}/Shop/GetShopByNumber
+  body: json
+  auth: bearer
+}
+
+headers {
+  x-dest: shop
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "number": "{{shopNumber}}"
+  }
+}
+
+script:post-response {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  const response = res.getBody();
+  bru.setVar("cityName", response.shop[0].cityName);
+  console.log(`cityName now is: ${response.shop[0].cityName}`);
+  
+  /* Содержится ли строка в теле ответа
+  // pm.test("Response body contains string", function () {
+  //     var responseBody = pm.response.text();
+  //     pm.expect(responseBody).to.include("Омск");
+  });
+  */
+}
