@@ -1,0 +1,42 @@
+meta {
+  name: Clear Cart 200
+  type: http
+  seq: 6
+}
+
+post {
+  url: https://api-gateway-dev.henderson.ru/Cart/ClearCart
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept-Language: ru-RU,ru;q=0.9
+  Connection: keep-alive
+  Origin: https://ecp-dev.henderson.ru
+  Referer: https://ecp-dev.henderson.ru/
+  Sec-Fetch-Dest: empty
+  Sec-Fetch-Mode: cors
+  Sec-Fetch-Site: same-site
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36
+  accept: application/json
+  authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyVG9rZW4iOiI4ZjU1ZWE5OC1kYzIyLTQ1ZTktOTQwMC1hN2QxODRlMzE4NWMiLCJDb3VudHJ5IjoiUlUiLCJleHAiOjE3NTA2ODcyMTgsImlzcyI6ImhlbmRlcnNvbi5ydSIsImF1ZCI6ImhlbmRlcnNvbi5ydSJ9.O9-WNfFuLzaLpO1LHcJlk0DxkG-CGyf34D7miy-hZZQ
+  content-type: application/json
+  sec-ch-ua: "Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"
+  sec-ch-ua-mobile: ?0
+  sec-ch-ua-platform: "Windows"
+  x-dest: cart
+}
+
+body:json {
+  {
+    "userId": "{{uuid}}"
+  }
+}
+
+script:post-response {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+}

@@ -1,0 +1,32 @@
+meta {
+  name: GetMiniCart 200
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{gateway_dev}}/Cart/GetMiniCart
+  body: json
+  auth: bearer
+}
+
+headers {
+  accept: text/plain
+  x-dest: cart
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "userId": "{{uuid}}"
+  }
+}
+
+script:post-response {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+}

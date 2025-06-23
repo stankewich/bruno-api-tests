@@ -1,0 +1,57 @@
+meta {
+  name: [2] GetMiniCart 200
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{gateway_dev}}/Cart/GetMiniCart
+  body: json
+  auth: bearer
+}
+
+headers {
+  accept: text/plain
+  x-dest: cart
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "userId": "{{uuid}}"
+  }
+}
+
+script:post-response {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  const responseJson = res.getBody();
+  
+  // Get products array
+  const products = responseJson.products;
+  
+  // Make sure it's an array and not empty
+  if (!Array.isArray(products) || products.length === 0) {
+      console.log("No products found in cart.");
+      return;
+  }
+  
+  // Gather modelCode and count
+  let itemsSummary = [];
+  let totalCount = 0;
+  
+  for (let product of products) {
+      const code = product.modelCode;
+      const count = product.count;
+      totalCount += count;
+      itemsSummary.push(`${code}: ${count} шт`);
+  }
+  
+  // Log final result
+  console.log(`Товаров в корзине всего: ${totalCount}.\n ${itemsSummary.join(',\n ')}`);
+}

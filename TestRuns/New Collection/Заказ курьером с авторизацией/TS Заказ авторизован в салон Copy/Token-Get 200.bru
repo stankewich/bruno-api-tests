@@ -1,0 +1,48 @@
+meta {
+  name: Token/Get 200
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{gateway_dev}}/Token/Get?userToken={{uuid}}&userId={{mindboxId-test}}
+  body: json
+  auth: none
+}
+
+params:query {
+  userToken: {{uuid}}
+  userId: {{mindboxId-test}}
+}
+
+headers {
+  x-dest: identity
+}
+
+script:pre-request {
+  const uuid = require('uuid').v4();
+  bru.setVar("uuid", uuid); 
+  console.log('Новый userToken - ' +uuid);
+  
+}
+
+script:post-response {
+  // Проверяем, есть ли token в теле ответа
+  if (res.body && res.body.token) {
+      // Сохраняем в переменную окружения
+      bru.setVar("token", res.body.token);
+  
+      // Логируем успех
+      console.log("✅ Token успешно сохранён:", res.body.token);
+  } else {
+      // Если token отсутствует — выводим ошибку
+      console.error("❌ Token не найден в ответе");
+  }
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+    console.log("✅ Тест 'Status code is 200' пройден");
+  });
+}

@@ -1,0 +1,49 @@
+meta {
+  name: New Collection
+  seq: 1
+}
+
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+vars:pre-request {
+  uuid: 
+  gateway_dev: https://api-gateway-dev.henderson.ru
+  mindboxId-test: 
+  token: 
+  refreshToken: 
+  customerCity: 
+  regionId: 
+  cityGuid: 
+  cityName: 
+  customerName: 
+  customerSurname: 
+  customerPhone: 
+  customerMail: stankewich.henderson@gmail.com
+  shopNumber: 
+  deliveryDate: 
+  deliveryType: 
+}
+
+docs {
+  Для запуска коллекции после импорта надо задать переменные на уровне коллекции:
+  
+  gateway_dev = [https://api-gateway-dev.henderson.ru](https://api-gateway-dev.henderson.ru)
+  
+  mindboxId-test = ваш mindboxId
+  
+  customerCity = город в который будете делать заказы (Москва, Нижний Новгород и тд)
+  
+  customerName
+  
+  customerSurname
+  
+  customerPhone (без +, но начинается на 7)
+  
+  customerMail
+}

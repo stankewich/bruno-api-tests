@@ -1,0 +1,62 @@
+meta {
+  name: [1] Cart Update 200
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{gateway_dev}}/Cart/Update
+  body: json
+  auth: bearer
+}
+
+headers {
+  Accept-Language: ru-RU,ru;q=0.9
+  Connection: keep-alive
+  Origin: https://ecp-dev.henderson.ru
+  Referer: https://ecp-dev.henderson.ru/
+  Sec-Fetch-Dest: empty
+  Sec-Fetch-Mode: cors
+  Sec-Fetch-Site: same-site
+  User-Agent: Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36
+  accept: application/json
+  authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyVG9rZW4iOiIyNDg0OTg4ZC0zOGQ5LTRmNDMtOTViYy0zYmRiODc0NjAwZmEiLCJDb3VudHJ5IjoiUlUiLCJVc2VySWQiOiI1ODUzOTYwIiwiRGV2aWNlVVVJRCI6Ijg2NjAyMGM1LWNlMWQtNDRhNi04N2E5LThjOTgwN2E3YzcwYiIsImV4cCI6MTc1MDE1MjUwMCwiaXNzIjoiaGVuZGVyc29uLnJ1IiwiYXVkIjoiaGVuZGVyc29uLnJ1In0.Lt-KatkUEVQvZkYcX1AFRZtgxOQ7nO9xJerwAEhte8Q
+  content-type: application/json
+  sec-ch-ua: "Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"
+  sec-ch-ua-mobile: ?1
+  sec-ch-ua-platform: "Android"
+  x-dest: cart
+  Cookie: mindboxDeviceUUID=866020c5-ce1d-44a6-87a9-8c9807a7c70b; directCrm-session=%7B%22deviceGuid%22%3A%22866020c5-ce1d-44a6-87a9-8c9807a7c70b%22%7D; _ym_uid=175015016178820407; _ym_d=1750150161; _ym_isad=2; _ym_visorc=w; _gcl_au=1.1.1144651608.1750150161; tmr_lvid=5557b3e5b72dd4b891ed905c19724603; tmr_lvidTS=1750150161688; _ga=GA1.1.798429429.1750150162; _ga_KXLLKH0F95=GS2.1.s1750150161$o1$g1$t1750152106$j42$l0$h0
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "userId": "{{uuid}}",
+    "products": [
+      {
+        "productId": 184791,
+        "count": 1
+      },
+      {
+        "productId": 269415,
+        "count": 0
+      },
+      {
+        "productId": 265345,
+        "count": 0
+      }
+    ],
+    "regionId": "{{regionId}}",
+    "country": "RU"
+  }
+}
+
+script:post-response {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+}
