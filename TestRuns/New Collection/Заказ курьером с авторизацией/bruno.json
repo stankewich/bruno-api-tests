@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Заказ курьером с авторизацией",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

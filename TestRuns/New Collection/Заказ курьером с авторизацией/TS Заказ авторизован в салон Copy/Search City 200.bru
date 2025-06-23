@@ -1,0 +1,43 @@
+meta {
+  name: Search City 200
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{gateway_dev}}/Geo/SearchCity
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  x-dest: geo
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+      "pattern": "{{customerCity}}"
+    }
+}
+
+script:post-response {
+  const response = res.getBody();
+  const firstCity = response.suggestCity[0];
+  bru.setVar("regionId", firstCity.regionId);
+  bru.setVar("cityGuid", firstCity.cityGuid);
+  bru.setVar("cityName", firstCity.shortName);
+  console.log(`regionId: ${firstCity.regionId}`);;
+  console.log(`cityGuid: ${firstCity.cityGuid}`);
+  console.log(`City Name: ${firstCity.shortName}`);
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // Logging each field
+  
+}
