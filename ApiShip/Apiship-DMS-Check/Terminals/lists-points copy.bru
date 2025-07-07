@@ -1,0 +1,60 @@
+meta {
+  name: /lists/points copy
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://api.apiship.ru/v1/lists/points?limit=3000&filter=cityGuid={{tyumen}};providerKey={{providerKey}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  limit: 3000
+  filter: cityGuid={{tyumen}};providerKey={{providerKey}}
+}
+
+headers {
+  accept: application/json
+  Authorization: {{token_apiship}}
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.status).to.equal(200);
+      console.log("✅ STATUS 200 OK");
+  });
+  
+  test("Number of Points is equal to total number in response", function () {
+      const responseJson = res.getBody();
+      const rows = responseJson.rows;
+  
+      if (Array.isArray(rows)) {
+          const ids = rows
+              .map(row => parseInt(row.id, 10))
+              .filter(id => !isNaN(id));
+  
+          console.log(`Извлеченные ID: [${ids.join(', ')}]`);
+          console.log(`Количество ID: ${ids.length}`);
+  
+          bru.setEnvVar("idsArray", JSON.stringify(ids));
+          bru.setEnvVar("ids_count", ids.length.toString());
+      } else {
+          console.log("⚠️ В ответе отсутствует массив 'rows'");
+      }
+  
+      if (responseJson.meta && typeof responseJson.meta.total !== "undefined") {
+          bru.setEnvVar("points_id_count", responseJson.meta.total.toString());
+          console.log(`Кол-во ID из ответа Апишипа: ${responseJson.meta.total}`);
+      } else {
+          console.log("⚠️ meta.total отсутствует в ответе");
+      }
+  
+      // Проверка: rows.length === meta.total
+      const rowsLength = Array.isArray(rows) ? rows.length : 0;
+      const total = responseJson.meta?.total ?? 0;
+  
+      expect(rowsLength).to.equal(total, `Длина rows (${rowsLength}) не совпадает с meta.total (${total})`);
+  });
+}

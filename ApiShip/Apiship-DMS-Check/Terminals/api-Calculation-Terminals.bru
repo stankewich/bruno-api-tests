@@ -1,0 +1,113 @@
+meta {
+  name: /api/Calculation/Terminals
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://api-dms-dev.henderson.ru/api/Calculation/Terminals
+  body: json
+  auth: inherit
+}
+
+headers {
+  x-dest: dms
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "cityId": "{{tyumen}}",
+    "fromCityId": "{{moscow}}"
+  }
+}
+
+tests {
+  test('Status should be 200', function() {
+      expect(res.status).to.equal(200);
+  });
+  
+  const responseJson = res.getBody();
+  const allowedTariffIds = [53, 54, 439]; //это активные тарифы для сдек и х5, взял в БД. 53 и 54 это сдек
+  const providersToCheck = ["cdek", "x5"]; //это провайдеры, можно редактировать. 439 это х5
+  
+  const uniquePointIds = new Set();
+  
+  if (responseJson.calculate) {
+      providersToCheck.forEach(providerKey => {
+          const providerData = responseJson.calculate[providerKey];
+  
+          if (Array.isArray(providerData)) {
+              providerData.forEach(item => {
+                  if (item.tariffId && allowedTariffIds.includes(item.tariffId)) {
+                      if (item.pointIds && Array.isArray(item.pointIds)) {
+                          item.pointIds.forEach(id => uniquePointIds.add(id));
+                      }
+                  }
+              });
+          } else {
+              console.log(`Для провайдера "${providerKey}" данные отсутствуют или не являются массивом`);
+          }
+      });
+  } else {
+      console.log("Ошибка: 'calculate' отсутствует в ответе");
+  }
+  
+  const pointIdsArray = Array.from(uniquePointIds);
+  
+  bru.setEnvVar("savedPointIds", JSON.stringify(pointIdsArray));
+  
+  console.log("Список pointIds:", pointIdsArray);
+  console.log("Общее количество уникальных pointIds:", pointIdsArray.length);
+  
+  test("Сверка точек самовывоза APISHIP и DMS", function () {
+  
+      const savedDMSPoints = bru.getEnvVar("savedPointIds");
+      const savedApishipPoints = bru.getEnvVar("idsArray");
+  
+      let savedDMSIds, savedApishipIds;
+  
+      try {
+          savedDMSIds = JSON.parse(savedDMSPoints).map(Number);
+      } catch (e) {
+          test.fail("Не может быть распарсен как JSON");
+      }
+  
+      try {
+          savedApishipIds = JSON.parse(savedApishipPoints).map(Number);
+      } catch (e) {
+          test.fail("Не может быть распарсен как JSON");
+      }
+  
+      test("Размеры массивов совпадают", function () {
+          expect(savedDMSIds.length).to.equal(savedApishipIds.length, "Количество точек самовывоза не совпадает");
+      });
+  
+      function getMissingElements(fromDms, fromApiship) {
+          const setDms = new Set(fromDms);
+          const setApiship = new Set(fromApiship);
+  
+          return {
+              inDmsNotInApiship: [...setDms].filter(id => !setApiship.has(id)),
+              inApishipNotInDms: [...setApiship].filter(id => !setDms.has(id))
+          };
+      }
+  
+      const { inDmsNotInApiship, inApishipNotInDms } = getMissingElements(
+          savedDMSIds, savedApishipIds
+      );
+  
+      if (inDmsNotInApiship.length > 0) {
+          console.warn("ID из DMS, которых нет в Apiship:", inDmsNotInApiship);
+      }
+  
+      if (inApishipNotInDms.length > 0) {
+          console.warn("ID из Apiship, которых нет в DMS:", inApishipNotInDms);
+      }
+  
+      test("Все ID совпадают (без учёта порядка)", function () {
+          expect(inDmsNotInApiship).to.be.empty;
+          expect(inApishipNotInDms).to.be.empty;
+      });
+  });
+}

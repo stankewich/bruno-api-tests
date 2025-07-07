@@ -1,0 +1,31 @@
+meta {
+  name: /users/login
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://api.apiship.ru/v1/users/login
+  body: json
+  auth: inherit
+}
+
+headers {
+  accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "login": "{{login}}",
+    "password": "{{password}}"
+  }
+}
+
+script:post-response {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  bru.setEnvVar('token_apiship', res.getBody().token);
+}

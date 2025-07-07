@@ -1,0 +1,50 @@
+meta {
+  name: /lists/points
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://api.apiship.ru/v1/lists/points?limit=3000&filter=cityGuid={{moscow}};providerKey={{providerKey}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  limit: 3000
+  filter: cityGuid={{moscow}};providerKey={{providerKey}}
+}
+
+headers {
+  accept: application/json
+  Authorization: {{token}}
+}
+
+tests {
+  test("Status code is 200", function () {
+    expect(res.status).to.equal(200);
+    console.log("✅ Тест 'Status code is 200' пройден");
+  });
+  
+  // Получаем тело ответа
+  const responseJson = res.getBody();
+  const rows = responseJson.rows;
+  
+  // Проверяем, что rows — это массив
+  if (Array.isArray(rows)) {
+    // Извлекаем id и конвертируем их в числа
+    const ids = rows
+      .map(row => parseInt(row.id, 10))
+      .filter(id => !isNaN(id)); // убираем некорректные значения
+  
+    // Логируем результат
+    console.log(`Извлеченные ID: [${ids.join(', ')}]`);
+  
+    // Сохраняем в переменную окружения как строку JSON
+    bru.setEnvVar("idsArray", JSON.stringify(ids));
+  } else {
+    console.warn("В ответе отсутствует массив 'rows'");
+  }
+  //сохраняем кол-во отданных точек самовывоза
+  bru.setEnvVar("points_id_count", responseJson.meta.total)
+}
